@@ -15,6 +15,7 @@ class Background{
       }
       this.moveRatio = 50
       Object.assign(this.el.style, this.style);
+
   }
 
   scrollSideWays(distance){
@@ -61,18 +62,18 @@ class Bird{
     this.style = {
       position: 'fixed',
       top: Math.floor(Math.random() * 70) + '%',
-      left: Math.floor(Math.random() * 2000) + 'px',
-      width: Math.floor(Math.random() * 200) + 'px',
+      left: 50+ 'px',
+      width: 200 + 'px',
     };
-    this.movementRatio = 10
-
+    this.movementRatio = 0
     var birdEl = document.createElement('img');
     birdEl.src = this.imgSrc;
     birdEl.id = this.id;
+    this.gravity = 1
     Object.assign(birdEl.style, this.style); 
     parentEl.appendChild(birdEl);
     this.addGravity()
-    document.getElementById(this.id).addEventListener('click',function(){
+    document.body.addEventListener('click',function(){
       this.jump()
     }.bind(this))
   }
@@ -94,7 +95,7 @@ class Bird{
 
       document.getElementById(scope.id).style.top = `${_current+1}%`
 
-    },1000/20)
+    },1000/40)
   }
 
   jump(){
@@ -103,7 +104,7 @@ class Bird{
     let counter = 0
     
     setInterval(function(){
-      if(counter===10){
+      if(counter===20){
         scope.jumping=false
         return
       }
@@ -122,30 +123,28 @@ class Bird{
 $(document).ready(function () {
 
   let background = new Background(document.getElementById('background'))
+  let pipes = []
+  for(var i=0;i<20;i++){
+    pipes.push(new Pipe(document.body))
+  }
+  let bird = new Bird(document.body);
 
-  let pipe1 = new Pipe(document.body);
-  let pipe2 = new Pipe(document.body);
-  let pipe3 = new Pipe(document.body);
-  let pipe4 = new Pipe(document.body);
 
-  let bird1 = new Bird(document.body);
-  let bird2 = new Bird(document.body);
-  let bird3 = new Bird(document.body);
-  let bird4 = new Bird(document.body);  
+  let offset = 0
 
-  document.addEventListener('scroll', function(){
-    var offset = window.scrollY
+  setInterval(()=>{
     background.scrollSideWays(offset)
-    pipe1.moveLeft(offset)
-    pipe2.moveLeft(offset)
-    pipe3.moveLeft(offset)
-    pipe4.moveLeft(offset)
-
-    bird1.moveLeft(offset)
-    bird2.moveLeft(offset)
-    bird3.moveLeft(offset)
-    bird4.moveLeft(offset)
-
-  })
+    pipes.forEach(pipe => pipe.moveLeft(offset))
+    bird.moveLeft(offset)
+    document.documentElement.scrollLeft = offset/5
+    let docPos = document.documentElement.scrollLeft
+    let birdPosition = bird.style.top
+    if(birdPosition<90&&birdPosition>5){
+      offset+=8
+    }
+    if(docPos>3600&&birdPosition>50){
+      bird.jump()
+    }
+  },10)
 
 });
